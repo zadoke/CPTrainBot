@@ -1,0 +1,15 @@
+{
+  "name": "horarioscp",
+  "version": "1.0.0",
+  "description": "Bot de discord para Comboios",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.7.1",
+    "jsdom": "^21.1.0"
+  }
+}
