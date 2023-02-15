@@ -3,14 +3,14 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 // Export an object containing the data and execute method for the slash command
 module.exports = {
-  	data: new SlashCommandBuilder()
-    .setName('localizacaocomboio')
-    .setDescription('Mostra a localização do comboio atual. É necessário o número do comboio.')
-    .addIntegerOption((option) =>
-      option.setName('numerocomboio')
-        .setDescription('O número do comboio')
-        .setRequired(true)
-    ),
+    data: new SlashCommandBuilder()
+		.setName('localizacaocomboio')
+		.setDescription('Mostra a localização do comboio atual. É necessário o número do comboio.')
+		.addIntegerOption((option) =>
+		option.setName('numerocomboio')
+			.setDescription('O número do comboio')
+			.setRequired(true)
+		),
 
 	async execute(interaction) {
 		const trainNumber = interaction.options.getInteger('numerocomboio');
