@@ -11,6 +11,10 @@ module.exports = {
         .setDescription('O nome da estação. É necessário escolher da lista apresentada.')
         .setRequired(true)
         .setAutocomplete(true)
+    )
+    .addIntegerOption(option =>
+		option.setName('horas')
+		.setDescription('O periodo de tempo que desejas consultar, em horas')
     ),
     async autocomplete(interaction){
 
@@ -44,7 +48,11 @@ module.exports = {
     },
 
     async execute(interaction) {
-        console.log(interaction.options.getString('nomeestacao'));
+        const stationNumber = parseInt(interaction.options.getString('nomeestacao'));
+        const hours = interaction.options.getInteger('horas');
+
+        
+
     }
 
 }
