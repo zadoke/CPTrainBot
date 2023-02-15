@@ -14,6 +14,7 @@ module.exports = {
     )
     .addIntegerOption(option =>
 		option.setName('horas')
+        .setRequired(true)
 		.setDescription('O periodo de tempo que desejas consultar, em horas')
     ),
     async autocomplete(interaction){
@@ -49,9 +50,32 @@ module.exports = {
 
     async execute(interaction) {
         const stationNumber = parseInt(interaction.options.getString('nomeestacao'));
-        const hours = interaction.options.getInteger('horas');
-
+        const hoursToAdd = interaction.options.getInteger('horas');
         
+        // Calculate the target time by adding the specified hours to the current time
+        const targetTime = new Date(Date.now() + hoursToAdd * 60 * 60 * 1000);
+
+        // Format the dates as 'YYYY-MM-DD%20HH:MM'
+        const formattedCurrentTime = new Date().toISOString().slice(0, 16).replace('T', '%20');
+        const formattedTargetTime = targetTime.toISOString().slice(0, 16).replace('T', '%20');
+      
+        // Construct the API URL with the formatted times and station number
+        const apiUrl = `https://servicos.infraestruturasdeportugal.pt/negocios-e-servicos/partidas-chegadas/${stationNumber}/${formattedCurrentTime}/${formattedTargetTime}/INTERNACIONAL,%20ALFA,%20IC,%20IR,%20REGIONAL,%20URB|SUBUR,%20ESPECIAL`;
+        
+        // Set up the headers to mimic Firefox on a Mac
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:85.0) Gecko/20100101 Firefox/85.0',
+            'Accept': 'application/json'
+        };
+        
+        // Send the GET request and return the response
+        const response = await fetch(apiUrl, { headers });
+        console.log(apiUrl);
+        scheduleData = await response.json();
+        console.log(scheduleData.response);
+        
+          
+
 
     }
 
