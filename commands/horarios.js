@@ -1,5 +1,5 @@
 // Import necessary modules from discord.js
-const { SlashCommandBuilder, EmbedBuilder, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
 // Export an object containing the data and execute method for the slash command
 module.exports = {
@@ -73,28 +73,89 @@ module.exports = {
 
         scheduleData = await response.json();
 
+        // Extract train departure data
         const departures = scheduleData.response[0].NodesComboioTabelsPartidasChegadas;
+        
+        let scheduleSelection = 0;
 
-        // Create a new Discord embed
-		const estadoComboioEmbed = new EmbedBuilder()
-            .setColor(0x0099FF)
-            .setTitle(`🚅 Partidas`)
-            .setTimestamp()
-           ;
+
+        // Add default value to "Observacoes" if it is undefined
+        for (const departure of departures) {
+            departure.Observacoes = departure.Observacoes || 'Sem atraso';
+        }
+
+        function createScheduleEmbed(){
+            const scheduleEmbed = new EmbedBuilder()
+                .setColor(0x0099FF)
+                .setTitle(`🚅 ${departures[scheduleSelection].NComboio1} (${departures[scheduleSelection].NomeEstacaoDestino})`)
+                .addFields(
+                    { name: '🕑 Horas', value:`${departures[scheduleSelection].DataHoraPartidaChegada}`},
+                    { name: '👮‍♂️ Operador', value:`${departures[scheduleSelection].Operador}`},
+                    { name: '🔴 Observações', value:`${departures[scheduleSelection].Observacoes}`}
+                );
+            return scheduleEmbed;
+        }
+
+
+        const nextTrainButton = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+					.setCustomId('nextTrain')
+					.setLabel('⏩ Próximo comboio')
+					.setStyle(ButtonStyle.Primary),
+			);
+        const previousTrainButton = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+					.setCustomId('previousTrain')
+					.setLabel('⏪ Comboio anterior')
+					.setStyle(ButtonStyle.Primary),
+			);
+        const tableViewButton = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('tableView')
+                    .setLabel('Vista em tabela')
+                    .setStyle(ButtonStyle.Danger),
+        ); 
         
-        // Add each departure as a field to the embed
-        
-        departures.forEach(departure => {
-            estadoComboioEmbed.setDescription("Teste")
-            .addFields(
-                { name:'🚅 Origem', value: `${departure.NComboio1} (${departure.NomeEstacaoOrigem} para ${departure.NomeEstacaoDestino})`},
-                { name: '🕑 Horas', value:`${departure.DataHoraPartidaChegada}`, inline: true}
-            );
-        });
+       
 
         // Send the embed to the Discord channel
-        await interaction.reply({ embeds: [estadoComboioEmbed] });
+        await interaction.reply({ embeds: [createScheduleEmbed()], components: [nextTrainButton] });
           
+
+        const scheduleCollector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 45000 });
+        scheduleCollector.on('collect', async i => {
+            if (i.customId == 'nextTrain'){
+                scheduleSelection++;
+                await i.update({ embeds: [createScheduleEmbed()], components: [previousTrainButton,nextTrainButton, tableViewButton]});
+            } else if (i.customId == 'previousTrain') {
+                scheduleSelection--;
+                if (scheduleSelection == 0){
+                    await i.update({ embeds: [createScheduleEmbed()], components: [nextTrainButton, tableViewButton]});
+                } else {
+                    await i.update({ embeds: [createScheduleEmbed()], components: [previousTrainButton,nextTrainButton, tableViewButton]});
+                }
+            } else {
+                const tableScheduleEmbed = new EmbedBuilder()
+                .setColor('#0099ff')
+                .setTitle(`Partidas na estação ${scheduleData.response[0].NomeEstacao}`)
+                
+                for (let i = 0; i < Math.min(departures.length, 25); i++) {
+                    tableScheduleEmbed.addFields(
+                        { name: ` `, value: `**${departures[i].DataHoraPartidaChegada}** 🚅 **${departures[i].NComboio1}** (${departures[i].NomeEstacaoDestino}) - 🟢 ${departures[scheduleSelection].Observacoes}`},
+                    );
+                }
+                
+                await i.update({ embeds: [tableScheduleEmbed], components: [] });
+            }
+
+        });
+
+        collector.on('end', collected => {
+            console.log(`Collected ${collected.size} items`);
+        });
 
 
     }
