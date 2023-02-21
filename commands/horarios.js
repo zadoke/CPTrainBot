@@ -1,5 +1,5 @@
 // Import necessary modules from discord.js
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ComponentType } = require('discord.js');
 
 // Export an object containing the data and execute method for the slash command
 module.exports = {
@@ -69,10 +69,31 @@ module.exports = {
         
         // Send the GET request and return the response
         const response = await fetch(apiUrl, { headers });
-        console.log(apiUrl);
+
+
         scheduleData = await response.json();
-        console.log(scheduleData.response);
+
+        const departures = scheduleData.response[0].NodesComboioTabelsPartidasChegadas;
+
+        // Create a new Discord embed
+		const estadoComboioEmbed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle(`🚅 Partidas`)
+            .setTimestamp()
+           ;
         
+        // Add each departure as a field to the embed
+        
+        departures.forEach(departure => {
+            estadoComboioEmbed.setDescription("Teste")
+            .addFields(
+                { name:'🚅 Origem', value: `${departure.NComboio1} (${departure.NomeEstacaoOrigem} para ${departure.NomeEstacaoDestino})`},
+                { name: '🕑 Horas', value:`${departure.DataHoraPartidaChegada}`, inline: true}
+            );
+        });
+
+        // Send the embed to the Discord channel
+        await interaction.reply({ embeds: [estadoComboioEmbed] });
           
 
 
