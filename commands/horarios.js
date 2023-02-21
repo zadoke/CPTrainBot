@@ -125,7 +125,7 @@ module.exports = {
         await interaction.reply({ embeds: [createScheduleEmbed()], components: [nextTrainButton] });
           
 
-        const scheduleCollector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 45000 });
+        const scheduleCollector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 15000 });
         scheduleCollector.on('collect', async i => {
             if (i.customId == 'nextTrain'){
                 scheduleSelection++;
@@ -153,7 +153,7 @@ module.exports = {
 
         });
 
-        collector.on('end', collected => {
+        scheduleCollector.on('end', collected => {
             console.log(`Collected ${collected.size} items`);
         });
 
