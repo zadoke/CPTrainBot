@@ -136,34 +136,30 @@ module.exports = {
 
         const scheduleCollector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 15000 });
         scheduleCollector.on('collect', async i => {
-            if (i.customId == 'nextTrain'){
-                scheduleSelection++;
-                await i.update({ embeds: [createScheduleEmbed()], components: [previousTrainButton,nextTrainButton, tableViewButton]});
-            } else if (i.customId == 'previousTrain') {
-                scheduleSelection--;
-                if (scheduleSelection == 0){
-                    await i.update({ embeds: [createScheduleEmbed()], components: [nextTrainButton, tableViewButton]});
-                } else {
+            switch (i.customId) {
+                case 'nextTrain':
+                    scheduleSelection++;
                     await i.update({ embeds: [createScheduleEmbed()], components: [previousTrainButton,nextTrainButton, tableViewButton]});
-                }
-            } else {
-                const tableScheduleEmbed = new EmbedBuilder()
-                .setColor('#0099ff')
-                .setTitle(`Partidas na estação ${scheduleData.response[0].NomeEstacao}`)
-                
-                for (let i = 0; i < Math.min(departures.length, 25); i++) {
-                  let color = '🟢';
-                  if (departures[i].Observacoes === 'SUPRIMIDO') {
-                      color = '🔴';
-                  }
-                  tableScheduleEmbed.addFields(
-                      { name: ` `, value: `**${departures[i].DataHoraPartidaChegada}** 🚅 **${departures[i].NComboio1}** (${departures[i].NomeEstacaoDestino}) - ${color} ${departures[i].Observacoes}`},
-                  );
-              }
-                
-                await i.update({ embeds: [tableScheduleEmbed], components: [] });
+                    break;
+                case 'previousTrain':
+                    scheduleSelection--;
+                    await i.update({ embeds: [createScheduleEmbed()], components: scheduleSelection == 0 ? [nextTrainButton, tableViewButton] : [previousTrainButton,nextTrainButton, tableViewButton]});
+                    break;
+                case 'tableView':
+                    const tableScheduleEmbed = new EmbedBuilder()
+                        .setColor('#0099ff')
+                        .setTitle(`Partidas na estação ${scheduleData.response[0].NomeEstacao}`)
+                        
+                        for (let i = 0; i < Math.min(departures.length, 25); i++) {
+                          let color = departures[i].Observacoes === 'SUPRIMIDO' ? '🔴' : '🟢';
+                          tableScheduleEmbed.addFields(
+                              { name: ` `, value: `**${departures[i].DataHoraPartidaChegada}** 🚅 **${departures[i].NComboio1}** (${departures[i].NomeEstacaoDestino}) - ${color} ${departures[i].Observacoes}`},
+                          );
+                      }
+                        
+                        await i.update({ embeds: [tableScheduleEmbed], components: [] });
+                    break;
             }
-
         });
 
         scheduleCollector.on('end', collected => {
