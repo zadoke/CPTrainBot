@@ -51,6 +51,18 @@ module.exports = {
         // Get the station name and hours offset from the options
         const stationName = parseInt(interaction.options.getString('nomeestacao'));
         const hoursOffset = interaction.options.getInteger('horas');
+
+          // Check if the station name is empty
+        try {
+          if (!stationName) {
+            await interaction.reply("É obrigatório escolher uma estação da lista.");
+          }
+        } catch (error) {
+          console.error(error);
+          // Send an error message to the user
+          await interaction.reply("Desculpa, algo correu mal!");
+          return;
+        }
         
         // Calculate the target time by adding the specified hours to the current time
         const targetTime = new Date(Date.now() + hoursOffset * 60 * 60 * 1000);
@@ -68,8 +80,6 @@ module.exports = {
             'Accept': 'application/json'
         };
 
-
-        
         // Send the GET request and return the response
         try {
           const response = await fetch(apiUrl, { headers });
@@ -81,12 +91,17 @@ module.exports = {
           return;
         }
 
-        console.log(apiUrl);
         // Extract train departure data
-        const departures = scheduleData.response[0].NodesComboioTabelsPartidasChegadas;
+        let departures;
+        try {
+          departures = scheduleData.response[0].NodesComboioTabelsPartidasChegadas;
+        } catch (error) {
+          console.error(error);
+          await interaction.reply('Desculpa, algo correu mal a retribuir os dados.');
+        }
         
-        let scheduleSelection = 0;
-
+        // Define a variable that keeps track of the current index of the departures array
+        let scheduleIndex = 0;
 
         // Add default value to "Observacoes" if it is undefined
         for (const departure of departures) {
@@ -96,37 +111,39 @@ module.exports = {
         function createScheduleEmbed(){
             const scheduleEmbed = new EmbedBuilder()
                 .setColor(0x0099FF)
-                .setTitle(`🚅 ${departures[scheduleSelection].NComboio1} (${departures[scheduleSelection].NomeEstacaoDestino})`)
+                .setTitle(`🚅 ${departures[scheduleIndex].NComboio1} (${departures[scheduleIndex].NomeEstacaoDestino})`)
+                // Add fields to the embed with the departure time, operator and observations
                 .addFields(
-                    { name: '🕑 Horas', value:`${departures[scheduleSelection].DataHoraPartidaChegada}`},
-                    { name: '👮‍♂️ Operador', value:`${departures[scheduleSelection].Operador}`},
-                    { name: '🔴 Observações', value:`${departures[scheduleSelection].Observacoes}`}
+                    { name: '🕑 Horas', value:`${departures[scheduleIndex].DataHoraPartidaChegada}`},
+                    { name: '👮‍♂️ Operador', value:`${departures[scheduleIndex].Operador}`},
+                    { name: '🔴 Observações', value:`${departures[scheduleIndex].Observacoes}`}
                 );
             return scheduleEmbed;
         }
 
-
-        const nextTrainButton = new ActionRowBuilder()
+      // Define constants for the buttons that will be used in the message components
+      // Create an action row builder object and add a button component with a custom id, label and style for the next, previous train and table view button
+      const nextTrainButton = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
 					.setCustomId('nextTrain')
 					.setLabel('⏩ Próximo comboio')
 					.setStyle(ButtonStyle.Primary),
 			);
-        const previousTrainButton = new ActionRowBuilder()
+      const previousTrainButton = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
 					.setCustomId('previousTrain')
 					.setLabel('⏪ Comboio anterior')
 					.setStyle(ButtonStyle.Primary),
 			);
-        const tableViewButton = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('tableView')
-                    .setLabel('Vista em tabela')
-                    .setStyle(ButtonStyle.Danger),
-        ); 
+      const tableViewButton = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('tableView')
+          .setLabel('📋 Vista em tabela')
+          .setStyle(ButtonStyle.Danger),
+      ); 
         
        
 
@@ -134,30 +151,40 @@ module.exports = {
         await interaction.reply({ embeds: [createScheduleEmbed()], components: [nextTrainButton] });
           
 
-        const scheduleCollector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 15000 });
+        // Create a message component collector to collect user interactions with buttons
+        const scheduleCollector = interaction.channel.createMessageComponentCollector({
+          componentType: ComponentType.Button,
+          time: 15000 // Set the time limit to 15 seconds
+        });
+
+        // Listen for button clicks and handle them accordingly
         scheduleCollector.on('collect', async i => {
             switch (i.customId) {
                 case 'nextTrain':
-                    scheduleSelection++;
+                    // Increment the schedule index and update the message with the next train schedule embed and buttons
+                    scheduleIndex++;
                     await i.update({ embeds: [createScheduleEmbed()], components: [previousTrainButton,nextTrainButton, tableViewButton]});
                     break;
                 case 'previousTrain':
-                    scheduleSelection--;
-                    await i.update({ embeds: [createScheduleEmbed()], components: scheduleSelection == 0 ? [nextTrainButton, tableViewButton] : [previousTrainButton,nextTrainButton, tableViewButton]});
+                    // Decrement the schedule index and update the message with the previous train schedule embed and buttons
+                    scheduleIndex--;
+                    await i.update({ embeds: [createScheduleEmbed()], components: scheduleIndex == 0 ? [nextTrainButton, tableViewButton] : [previousTrainButton,nextTrainButton, tableViewButton]});
                     break;
                 case 'tableView':
+                    // Create a table view embed with the departures data from the station
                     const tableScheduleEmbed = new EmbedBuilder()
                         .setColor('#0099ff')
                         .setTitle(`Partidas na estação ${scheduleData.response[0].NomeEstacao}`)
                         
+                        // Loop through the departures array and add fields to the embed with color indicators for supressed trains
                         for (let i = 0; i < Math.min(departures.length, 25); i++) {
                           let color = departures[i].Observacoes === 'SUPRIMIDO' ? '🔴' : '🟢';
                           tableScheduleEmbed.addFields(
                               { name: ` `, value: `**${departures[i].DataHoraPartidaChegada}** 🚅 **${departures[i].NComboio1}** (${departures[i].NomeEstacaoDestino}) - ${color} ${departures[i].Observacoes}`},
                           );
                       }
-                        
-                        await i.update({ embeds: [tableScheduleEmbed], components: [] });
+                    // Update the message with the table view embed and remove the buttons
+                    await i.update({ embeds: [tableScheduleEmbed], components: [] });
                     break;
             }
         });
