@@ -108,7 +108,16 @@ module.exports = {
             departure.Observacoes = departure.Observacoes || 'Sem atraso';
         }
 
+        // Define an object with color indicators for different values of Observacoes
+        let colorTable = {
+          'SUPRIMIDO': '🔴', 
+          'Atraso previsto de': '🟡', 
+          'default': '🟢' 
+        };
+
         function createScheduleEmbed(){
+            // Use the value of Observacoes as a key to lookup the corresponding color in the object
+            let statusColor = colorTable[departures[scheduleIndex].Observacoes] || colorTable.default;
             const scheduleEmbed = new EmbedBuilder()
                 .setColor(0x0099FF)
                 .setTitle(`🚅 ${departures[scheduleIndex].NComboio1} (${departures[scheduleIndex].NomeEstacaoDestino})`)
@@ -116,7 +125,7 @@ module.exports = {
                 .addFields(
                     { name: '🕑 Horas', value:`${departures[scheduleIndex].DataHoraPartidaChegada}`},
                     { name: '👮‍♂️ Operador', value:`${departures[scheduleIndex].Operador}`},
-                    { name: '🔴 Observações', value:`${departures[scheduleIndex].Observacoes}`}
+                    { name: `${statusColor} Observações`, value:`${departures[scheduleIndex].Observacoes}`}
                 );
             return scheduleEmbed;
         }
@@ -175,12 +184,11 @@ module.exports = {
                     const tableScheduleEmbed = new EmbedBuilder()
                         .setColor('#0099ff')
                         .setTitle(`Partidas na estação ${scheduleData.response[0].NomeEstacao}`)
-                        
                         // Loop through the departures array and add fields to the embed with color indicators for supressed trains
                         for (let i = 0; i < Math.min(departures.length, 25); i++) {
-                          let color = departures[i].Observacoes === 'SUPRIMIDO' ? '🔴' : '🟢';
+                          let statusColor = colorTable[departures[i].Observacoes] || colorTable.default;
                           tableScheduleEmbed.addFields(
-                              { name: ` `, value: `**${departures[i].DataHoraPartidaChegada}** 🚅 **${departures[i].NComboio1}** (${departures[i].NomeEstacaoDestino}) - ${color} ${departures[i].Observacoes}`},
+                              { name: ` `, value: `**${departures[i].DataHoraPartidaChegada}** | 🚅 **${departures[i].NComboio1}** (${departures[i].NomeEstacaoDestino}) - ${statusColor} ${departures[i].Observacoes}`},
                           );
                       }
                     // Update the message with the table view embed and remove the buttons
