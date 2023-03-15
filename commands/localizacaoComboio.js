@@ -65,8 +65,7 @@ module.exports = {
 		const estadoComboioEmbed = new EmbedBuilder()
 		.setColor(0x0099FF)
 		.setTitle(`🚅 Comboio ${trainNumber} ${trainData.response.TipoServico} - Localização`)
-		.setTimestamp()
-		.setFooter({ text: `Operador: ${trainData.response.Operador}`, iconURL: 'https://www.cp.pt/StaticFiles/CP/resources/images/logo_cp/cp_192.png' });
+		.setFooter({ text: `Poderão existir falhas entre os horários apresentados e a realidade.\nInfraestruturas de Portugal, S.A.`, iconURL: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Logo_Infraestruturas_de_Portugal_2.svg/512px-Logo_Infraestruturas_de_Portugal_2.svg.png' });
 		
 
 		// Check the status of the train and add relevant fields to the embed
@@ -74,7 +73,7 @@ module.exports = {
 			case 'Programado':
 			  estadoComboioEmbed.setDescription('O Comboio ainda não foi realizado:')
 				.addFields(
-				  { name: '🔴 Observações', value: trainData.response.SituacaoComboio },
+				  { name: '⚪ Observações', value: trainData.response.SituacaoComboio, },
 				  { name: '🏔 Estação de partida', value: trainData.response.Origem, inline: true },
 				  { name: '🕑 Hora de partida', value: currentLocation.HoraProgramada, inline: true }
 				);
@@ -84,7 +83,7 @@ module.exports = {
 				.addFields(
 				  { name: '🏔 Estação Terminal', value: trainData.response.Destino },
 				  { name: '🕑 Hora de Chegada', value: trainData.response.DataHoraDestino, inline: true },
-				  { name: '🔴 Observações', value: trainData.response.SituacaoComboio, inline: true }
+				  { name: '⚫ Observações', value: trainData.response.SituacaoComboio, inline: true }
 				);
 			  break;
 			case 'SUPRIMIDO':
@@ -100,7 +99,7 @@ module.exports = {
 				.addFields(
 				  { name: '🏔 Estação', value: currentLocation.NomeEstacao },
 				  { name: '🕑 Hora Programada', value: currentLocation.HoraProgramada, inline: true },
-				  { name: '🔴 Observações', value: trainData.response.SituacaoComboio, inline: true }
+				  { name: '🟢 Observações', value: trainData.response.SituacaoComboio, inline: true }
 				);
 		}
 		

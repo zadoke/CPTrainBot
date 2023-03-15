@@ -188,7 +188,7 @@ module.exports = {
                         for (let i = 0; i < Math.min(departures.length, 25); i++) {
                           let statusColor = colorTable[departures[i].Observacoes] || colorTable.default;
                           tableScheduleEmbed.addFields(
-                              { name: ` `, value: `**${departures[i].DataHoraPartidaChegada}** | 🚅 **${departures[i].NComboio1}** (${departures[i].NomeEstacaoDestino}) - ${statusColor} ${departures[i].Observacoes}`},
+                              { name: ` `, value: `**${departures[i].DataHoraPartidaChegada}** | 🚅 **${departures[i].NComboio1}** (${departures[i].NomeEstacaoDestino}) | ${statusColor} ${departures[i].Observacoes}`},
                           );
                       }
                     // Update the message with the table view embed and remove the buttons
