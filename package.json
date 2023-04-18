@@ -1,6 +1,6 @@
 {
-  "name": "horarioscp",
-  "version": "1.0.0",
+  "name": "cptrainbot",
+  "version": "0.1.0",
   "description": "Bot de discord para Comboios",
   "main": "index.js",
   "engines": {
@@ -9,11 +9,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "zadoke",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "discord.js": "^14.7.1",
     "jsdom": "^21.1.0"
   }
-  
 }

@@ -1,6 +1,5 @@
 // Import necessary modules from discord.js
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-
+const { SlashCommandBuilder, EmbedBuilder} = require('discord.js');
 // Export an object containing the data and execute method for the slash command
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,7 +21,6 @@ module.exports = {
 		method: 'GET',
 		headers: {
 			'Accept': 'application/json',
-			'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:97.0) Gecko/20100101 Firefox/97.0'
 		}
 		});
 
@@ -42,21 +40,17 @@ module.exports = {
 		to get the most recent node where the train has not yet passed. 
 		Finally, it selects the first element from the resulting array, 
 		which represents the current location of the train.*/
-		const currentLocation = trainData.response.NodesPassagemComboio
+		const nextStation = trainData.response.NodesPassagemComboio
 		.filter((node) => !node.ComboioPassou)
 		.sort((a, b) => b.ComboioPassou - a.ComboioPassou)[0];
-
-		console.log(trainData.response);
-		console.log(currentLocation)
-
 
 		// Check if SituacaoComboio or Observacoes is empty and set to 'Sem observações' if it is
 		// A empty string will result in a error.
 		trainData.response.SituacaoComboio = trainData.response.SituacaoComboio || 'Sem observações';
 		
-		//After the train completes its service, currentLocation after all nodes are run is undefined. This will only execute the code if currentLocation is defined. If it's undefined, it will simply skip over the line.
-		if (currentLocation) {
-			currentLocation.Observacoes = currentLocation.Observacoes || 'Sem observações';
+		//After the train completes its service, nextStation after all nodes are run is undefined. This will only execute the code if nextStation is defined. If it's undefined, it will simply skip over the line.
+		if (nextStation) {
+			nextStation.Observacoes = nextStation.Observacoes || 'Sem observações';
 		}
 		  
 			
@@ -75,8 +69,9 @@ module.exports = {
 				.addFields(
 				  { name: '⚪ Observações', value: trainData.response.SituacaoComboio, },
 				  { name: '🏔 Estação de partida', value: trainData.response.Origem, inline: true },
-				  { name: '🕑 Hora de partida', value: currentLocation.HoraProgramada, inline: true }
+				  { name: '🕑 Hora de partida', value: nextStation.HoraProgramada, inline: true }
 				);
+			  await interaction.reply({ embeds: [estadoComboioEmbed] });
 			  break;
 			case 'Realizado':
 			  estadoComboioEmbed.setDescription('O comboio já foi realizado.')
@@ -85,25 +80,27 @@ module.exports = {
 				  { name: '🕑 Hora de Chegada', value: trainData.response.DataHoraDestino, inline: true },
 				  { name: '⚫ Observações', value: trainData.response.SituacaoComboio, inline: true }
 				);
+			  await interaction.reply({ embeds: [estadoComboioEmbed] });
 			  break;
 			case 'SUPRIMIDO':
 			  estadoComboioEmbed.setDescription('O comboio foi SUPRIMIDO.')
 				.addFields(
 				  { name: '🔴 Observações', value: trainData.response.SituacaoComboio,},
 				  { name: '🏔 Estação de partida', value: trainData.response.Origem, inline: true },
-				  { name: '🕑 Hora de partida', value: currentLocation.HoraProgramada, inline: true }
+				  { name: '🕑 Hora de partida', value: nextStation.HoraProgramada, inline: true }
 				);
+			  await interaction.reply({ embeds: [estadoComboioEmbed] });
 			  break;
-			default:
-			  estadoComboioEmbed.setDescription('O Comboio irá passar/está por:')
-				.addFields(
-				  { name: '🏔 Estação', value: currentLocation.NomeEstacao },
-				  { name: '🕑 Hora Programada', value: currentLocation.HoraProgramada, inline: true },
-				  { name: '🟢 Observações', value: trainData.response.SituacaoComboio, inline: true }
-				);
+			default:	
+				estadoComboioEmbed.setDescription('O Comboio irá passar/está por:')
+					.addFields(
+						{ name: '🏔 Estação', value: nextStation.NomeEstacao },
+						{ name: '🕑 Hora Programada', value: nextStation.HoraProgramada, inline: true },
+						{ name: '🟢 Observações', value: trainData.response.SituacaoComboio, inline: true }
+					);
+				await interaction.reply({ embeds: [estadoComboioEmbed]});	
+				break;	
 		}
-		
-		await interaction.reply({ embeds: [estadoComboioEmbed] });
 		
 	}	
 }
