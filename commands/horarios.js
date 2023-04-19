@@ -79,7 +79,6 @@ module.exports = {
         
         const formattedCurrentTime = formatDate(new Date());
         const formattedTargetTime = formatDate(targetTime);
-
         
         // Construct the API URL with the formatted times and station name using template literals
         const apiUrl = `https://servicos.infraestruturasdeportugal.pt/negocios-e-servicos/partidas-chegadas/${stationName}/${formattedCurrentTime}/${formattedTargetTime}/INTERNACIONAL,%20ALFA,%20IC,%20IR,%20REGIONAL,%20URB%7CSUBUR,%20ESPECIAL`;
@@ -216,14 +215,12 @@ module.exports = {
         }
 
         await interaction.reply({ embeds: [createScheduleEmbed(departureData,scheduleIndex)], components: [nextTrainButton, tableViewButton] });
-          
 
         // Create a message component collector to collect user interactions with buttons
         const scheduleCollector = interaction.channel.createMessageComponentCollector({
           componentType: ComponentType.Button,
           time: 15000 // Set the time limit to 15 seconds
         });
-
 
         // Listen for button clicks and handle them accordingly
         scheduleCollector.on('collect', async i => {
@@ -256,6 +253,7 @@ module.exports = {
                   break;
               };
         });
+
         // Listen for the end of the collector and log the number of items collected
         scheduleCollector.on('end', collected => {
             console.log(`Collected ${collected.size} items`);
