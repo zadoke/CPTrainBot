@@ -1,5 +1,6 @@
 // Import necessary modules from discord.js
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const getStationNames = require('../utils/getStationNames');
 
 // Export an object containing the data and execute method for the slash command
 module.exports = {
@@ -17,5 +18,8 @@ module.exports = {
         .setDescription('O número do comboio')
         .setRequired(true)
     ),
-    
+
+    async autocomplete(interaction) {
+      await getStationNames(interaction);
+    },
 }
