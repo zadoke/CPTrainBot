@@ -14,7 +14,7 @@ To use CPTrainBot, you need to follow these steps:
 
 1. Clone the repository.
 2. Rename the `config_example.json` file to `config.json`.
-3. Fill in the following fields in the `config.json` file with your Discord bot token, client id and your server id (guild_id).
+3. Fill in the following fields in the `config.json` file with your Discord bot token and the Client ID.
 4. Install the required packages with the following command: `npm install`.
 5. Run the following command to deploy the slash commands: `node deploy-commands.js`
 
