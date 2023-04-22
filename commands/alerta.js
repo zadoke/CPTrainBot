@@ -22,4 +22,10 @@ module.exports = {
     async autocomplete(interaction) {
       await getStationNames(interaction);
     },
+
+    async execute(interaction){
+      // Get the station name and train number from the options
+      const stationName = parseInt(interaction.options.getString('nomeestacao'));
+      const trainNumber = interaction.options.getInteger('numerocomboio');
+    }
 }
