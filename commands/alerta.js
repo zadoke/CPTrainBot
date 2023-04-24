@@ -1,6 +1,7 @@
 // Import necessary modules from discord.js
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const getStationNames = require('../utils/getStationNames');
+const fetchTrainDetails = require('../utils/fetchTrainDetails');
 
 // Export an object containing the data and execute method for the slash command
 module.exports = {
@@ -27,5 +28,9 @@ module.exports = {
       // Get the station name and train number from the options
       const stationName = parseInt(interaction.options.getString('nomeestacao'));
       const trainNumber = interaction.options.getInteger('numerocomboio');
+
+      const trainData = await fetchTrainDetails(trainNumber);
+      
     }
+
 }
