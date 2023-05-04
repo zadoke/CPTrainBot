@@ -2,6 +2,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const getStationNames = require('../utils/getStationNames');
 const fetchTrainDetails = require('../utils/fetchTrainDetails');
+const getTravelTime = require('../utils/getTravelTime');
 
 // Export an object containing the data and execute method for the slash command
 module.exports = {
@@ -29,7 +30,6 @@ module.exports = {
       const userId = interaction.user.id;
       const user = await client.users.fetch(userId);
 
-      // Get the station name and train number from the options
       const stationId = parseInt(interaction.options.getString('nomeestacao'));
       const trainNumber = interaction.options.getInteger('numerocomboio');
 
@@ -40,12 +40,17 @@ module.exports = {
         return interaction.reply('O comboio não foi encontrado.');
       }
 
-      // Find the user's station in the stations array
-      const userStation = trainData.response.NodesPassagemComboio.find(station => station.NodeID === stationId);
+      const stationIndex = trainData.response.NodesPassagemComboio.findIndex(station => station.NodeID === stationId);
+      
+      const userStation = trainData.response.NodesPassagemComboio[stationIndex];
+      const previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
+
+      // Get the time delta between the user's station and the previous station
+      const travelTime = getTravelTime(userStation.HoraProgramada, previousStation.HoraProgramada);
 
       // Check if the user's station exists in the array of train stations by evaluating the "userStation" variable. If it does not exist, inform the user that the train does not pass through the station they provided and prompt them to try again.
       if (!userStation){
-        return interaction.reply('O comboio não passa pela a estação que introduziste. Tenta novamente!');
+        return interaction.reply('O comboio não passa pela a estação que introduziste.');
       }
 
       // Check if the train has already passed the user's station by evaluating the "ComboioPassou" property of the station data. If true, notify the user that the train has already passed their station.
@@ -69,16 +74,16 @@ module.exports = {
 
         previousStatus = trainData.response.SituacaoComboio;
 
-        // Find the index of the user's station in the station array, this is necessary to get the previous station.
-        const stationIndex = trainData.response.NodesPassagemComboio.findIndex(station => station.NodeID === stationId);
-        // Get the previous station by accessing the element in the array before the user's station.
-        const previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
+        console.log(previousStation);
 
         // Check if the train has passed the previous station.
         if (previousStation && previousStation.ComboioPassou) {
-          user.send(`${interaction.user.toString()}, o teu comboio está prestes a chegar.`);
           clearInterval(interval);
         }
       }, 15000);
+      setTimeout(() => {
+        user.send(`${interaction.user.toString()}, o teu comboio ${trainNumber} vai chegar a ${userStation.NomeEstacao} daqui a 1 minuto.`);
+        return;
+      }, travelTime - 60000); // Subtract 1 minute (60000 miliseconds) to the travel time.
     }
 }
