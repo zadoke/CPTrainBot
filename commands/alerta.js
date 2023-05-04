@@ -45,15 +45,12 @@ module.exports = {
       const userStation = trainData.response.NodesPassagemComboio[stationIndex];
       let previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
       
-      // Get the time delta between the user's station and the previous station
       const travelTime = getTravelTime(userStation.HoraProgramada, previousStation.HoraProgramada);
 
-      // Check if the user's station exists in the array of train stations by evaluating the "userStation" variable. If it does not exist, inform the user that the train does not pass through the station they provided and prompt them to try again.
       if (!userStation){
         return interaction.reply('O comboio não passa pela a estação que introduziste.');
       }
 
-      // Check if the train has already passed the user's station by evaluating the "ComboioPassou" property of the station data. If true, notify the user that the train has already passed their station.
       if (userStation.ComboioPassou) {
         return interaction.reply('O comboio já passou pela a estação!')
       }
@@ -68,7 +65,6 @@ module.exports = {
         const trainData = await fetchTrainDetails(trainNumber);
         previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
 
-        // Compare the previous status of the train with the current one. If they are different, notify the user about the update.
         if (previousStatus && previousStatus !== trainData.response.SituacaoComboio){
           user.send(`${interaction.user.toString()}, o estado do teu comboio mudou. Estado atual: ${trainData.response.SituacaoComboio}`); //Here we send the response outside of the interaction, for reasons that we explained above.
         }
