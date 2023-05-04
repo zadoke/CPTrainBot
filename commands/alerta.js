@@ -43,8 +43,8 @@ module.exports = {
       const stationIndex = trainData.response.NodesPassagemComboio.findIndex(station => station.NodeID === stationId);
       
       const userStation = trainData.response.NodesPassagemComboio[stationIndex];
-      const previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
-
+      let previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
+      
       // Get the time delta between the user's station and the previous station
       const travelTime = getTravelTime(userStation.HoraProgramada, previousStation.HoraProgramada);
 
@@ -66,6 +66,7 @@ module.exports = {
       // Set an interval to check the train status every 15 seconds
       const interval = setInterval(async () => {
         const trainData = await fetchTrainDetails(trainNumber);
+        previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
 
         // Compare the previous status of the train with the current one. If they are different, notify the user about the update.
         if (previousStatus && previousStatus !== trainData.response.SituacaoComboio){
