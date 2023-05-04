@@ -74,16 +74,14 @@ module.exports = {
 
         previousStatus = trainData.response.SituacaoComboio;
 
-        console.log(previousStation);
-
         // Check if the train has passed the previous station.
         if (previousStation && previousStation.ComboioPassou) {
+          setTimeout(() => {
+            user.send(`${interaction.user.toString()}, o teu comboio ${trainNumber} vai chegar a ${userStation.NomeEstacao} daqui a 1 minuto.`);
+            return;
+          }, travelTime - 60000); // Subtract 1 minute (60000 miliseconds) to the travel time.
           clearInterval(interval);
         }
       }, 15000);
-      setTimeout(() => {
-        user.send(`${interaction.user.toString()}, o teu comboio ${trainNumber} vai chegar a ${userStation.NomeEstacao} daqui a 1 minuto.`);
-        return;
-      }, travelTime - 60000); // Subtract 1 minute (60000 miliseconds) to the travel time.
     }
 }
