@@ -1,4 +1,4 @@
-const convertToMilliseconds = require("./convertToMiliseconds");
+const convertToMilliseconds = require("./convertToMilliseconds");
 
 // Get the time delta between two stations in miliseconds
 function getTravelTime (station1Time, station2Time){
