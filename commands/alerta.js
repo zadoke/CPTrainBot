@@ -2,12 +2,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const getStationNames = require('../utils/getStationNames');
 const fetchTrainDetails = require('../utils/fetchTrainDetails');
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
+const getTravelTime = require('../utils/getTravelTime');
 
 // Export an object containing the data and execute method for the slash command
 module.exports = {
@@ -47,8 +42,10 @@ module.exports = {
 
       const stationIndex = trainData.response.NodesPassagemComboio.findIndex(station => station.NodeID === stationId);
       
-      let userStation = trainData.response.NodesPassagemComboio[stationIndex];
+      const userStation = trainData.response.NodesPassagemComboio[stationIndex];
       let previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
+      
+      const travelTime = getTravelTime(userStation.HoraProgramada, previousStation.HoraProgramada);
 
       if (!userStation){
         return interaction.reply('O comboio não passa pela a estação que introduziste.');
@@ -71,39 +68,15 @@ module.exports = {
         if (previousStatus && previousStatus !== trainData.response.SituacaoComboio){
           user.send(`${interaction.user.toString()}, o estado do teu comboio mudou. Estado atual: ${trainData.response.SituacaoComboio}`); //Here we send the response outside of the interaction, for reasons that we explained above.
         }
-        
+
         previousStatus = trainData.response.SituacaoComboio;
 
+        // Check if the train has passed the previous station.
         if (previousStation && previousStation.ComboioPassou) {
-          // Check if there is an updated arrival time in the Observacoes field
-          let scheduledArrivalTime;
-          userStation = trainData.response.NodesPassagemComboio[stationIndex];
-
-          if (userStation.Observacoes && userStation.Observacoes.includes('Hora Prevista')) {
-            const updatedArrivalTime = userStation.Observacoes.split(':')[1];
-            scheduledArrivalTime = dayjs.tz(`${dayjs().format('YYYY-MM-DD')}T${updatedArrivalTime}:00.000Z`, 'Europe/Lisbon');
-          } else {
-            scheduledArrivalTime = dayjs.tz(`${dayjs().format('YYYY-MM-DD')}T${userStation.HoraProgramada}:00.000Z`, 'Europe/Lisbon');
-          }
-        
-          // Calculate the travel time between the previous station and the next station
-          const previousStationArrivalTime = dayjs.tz(`${dayjs().format('YYYY-MM-DD')}T${previousStation.HoraProgramada}:00.000Z`, 'Europe/Lisbon');
-          const travelTime = scheduledArrivalTime - previousStationArrivalTime;
-
-          // Calculate the time difference between the current time and the scheduled arrival time at the next station
-          let currentTime = dayjs().tz('Europe/Lisbon');
-          let timeDifference = scheduledArrivalTime.diff(currentTime);
-
-          // Check if there is a delay
-          if (currentTime.isAfter(scheduledArrivalTime)) {
-            // Add the travel time between the two stations to the time difference to account for the delay
-            timeDifference += travelTime;
-          }
-
           setTimeout(() => {
             user.send(`${interaction.user.toString()}, o teu comboio ${trainNumber} vai chegar a ${userStation.NomeEstacao} daqui a 1 minuto.`);
             return;
-          }, timeDifference - 60000); // Subtract 1 minute (60000 miliseconds) from the time difference
+          }, travelTime - 60000); // Subtract 1 minute (60000 miliseconds) to the travel time.
           clearInterval(interval);
         }
       }, 15000);
