@@ -12,6 +12,7 @@
   "author": "zadoke",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "dayjs": "^1.11.7",
     "discord.js": "^14.7.1",
     "jsdom": "^21.1.0"
   }
