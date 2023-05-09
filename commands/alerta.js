@@ -41,8 +41,7 @@ module.exports = {
       const trainNumber = interaction.options.getInteger('numerocomboio');
 
       const trainData = await fetchTrainDetails(trainNumber);
-
-      // Check if train data is valid
+      
       if (trainData.trainNotFound) {
         return interaction.reply(trainData.message);
       }
