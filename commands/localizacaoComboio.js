@@ -18,9 +18,8 @@ module.exports = {
 		const trainData = await fetchTrainDetails(trainNumber);
 
 		// Check if train data is valid
-		if (trainData.response.DataHoraDestino === null) {
-			// If train data is invalid, reply with an error message
-			return interaction.reply('O comboio não foi encontrado.');
+		if (trainData.trainNotFound) {
+			return interaction.reply(trainData.message);
 		}
 
 		// Get the current location of the train
