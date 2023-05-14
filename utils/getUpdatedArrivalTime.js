@@ -14,6 +14,6 @@ function getUpdatedArrivalTime(station) {
       arrivalTime = dayjs.tz(`${dayjs().format('YYYY-MM-DD')}T${station.HoraProgramada}:00.000Z`, 'Europe/Lisbon');
     }
     return arrivalTime;
-  }
+}
 
 module.exports = getUpdatedArrivalTime;

@@ -19,6 +19,7 @@ async function fetchTrainDetails(trainNumber) {
 
         const train = await response.json();
 
+        // Check if the train exists
         if (train.response.DataHoraDestino === null) {
             return { trainNotFound: true, message: 'O comboio não foi encontrado.' };
         } else {

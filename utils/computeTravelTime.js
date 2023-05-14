@@ -12,11 +12,10 @@ function computeTravelTime(stationArrivalTime, previousStationArrivalTime) {
 
   // Check if there is a delay
   if (currentTime.isAfter(stationArrivalTime)) {
-      // Add the travel time between the two stations to the time difference to account for the delay
+    // Add the travel time between the two stations to the time difference to account for the delay
     const travelTime = stationArrivalTime - previousStationArrivalTime;
     timeDifference += travelTime;
   }
-
   return timeDifference;
 }
 

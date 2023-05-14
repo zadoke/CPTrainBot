@@ -23,9 +23,9 @@ module.exports = {
         .setAutocomplete(true)
     )
     .addIntegerOption((option) =>
-    option.setName('numerocomboio')
-        .setDescription('O número do comboio')
-        .setRequired(true)
+      option.setName('numerocomboio')
+          .setDescription('O número do comboio')
+          .setRequired(true)
     ),
 
     async autocomplete(interaction) {
@@ -36,43 +36,37 @@ module.exports = {
       // Retrieve the user ID of the user who triggered the slash command. This is required as interaction tokens for slash commands only remain valid for 15 minutes. We will use this ID to send a Direct Message to the user.
       const userId = interaction.user.id;
       const user = await client.users.fetch(userId);
-
       const stationId = parseInt(interaction.options.getString('nomeestacao'));
       const trainNumber = interaction.options.getInteger('numerocomboio');
 
       const trainData = await fetchTrainDetails(trainNumber);
-      
       if (trainData.trainNotFound) {
         return interaction.reply(trainData.message);
       }
 
       const stationIndex = trainData.response.NodesPassagemComboio.findIndex(station => station.NodeID === stationId);
-      
       let userStation = trainData.response.NodesPassagemComboio[stationIndex];
       let previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
+      // Store the current train status to compare with future requests and inform the user if it changes.
+      let previousStatus = trainData.response.SituacaoComboio;
 
       if (!userStation){
         return interaction.reply('O comboio não passa pela a estação que introduziste.');
       }
-
       if (userStation.ComboioPassou) {
         return interaction.reply('O comboio já passou pela a estação!')
       }
 
       interaction.reply(`${interaction.user.toString()}, o alerta está definido. Irei avisar-te quando o comboio ${trainNumber} chegar a ${userStation.NomeEstacao}.`);
 
-      // Store the current train status to compare with future requests and inform the user if it changes.
-      let previousStatus = trainData.response.SituacaoComboio;
-
       // Set an interval to check the train status every 15 seconds
       const interval = setInterval(async () => {
         const trainData = await fetchTrainDetails(trainNumber);
         previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
 
-        if (previousStatus && previousStatus !== trainData.response.SituacaoComboio){
+        if (previousStatus && trainData.response.SituacaoComboio && previousStatus !== trainData.response.SituacaoComboio) {
           user.send(`${interaction.user.toString()}, o estado do teu comboio mudou. Estado atual: ${trainData.response.SituacaoComboio}`); //Here we send the response outside of the interaction, for reasons that we explained above.
         }
-        
         previousStatus = trainData.response.SituacaoComboio;
         
         if (previousStation && previousStation.ComboioPassou) {
@@ -81,7 +75,6 @@ module.exports = {
 
           const userStationArrivalTime = getUpdatedArrivalTime(userStation);
           const previousStationArrivalTime = getUpdatedArrivalTime(previousStation);
-
           const timeDifference = computeTravelTime(userStationArrivalTime, previousStationArrivalTime);
           
           setTimeout(() => {
