@@ -64,7 +64,7 @@ module.exports = {
         const trainData = await fetchTrainDetails(trainNumber);
         previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
 
-        if (previousStatus && trainData.response.SituacaoComboio && previousStatus !== trainData.response.SituacaoComboio) {
+        if (trainData.response.SituacaoComboio && previousStatus !== trainData.response.SituacaoComboio) {
           user.send(`${interaction.user.toString()}, o estado do teu comboio mudou. Estado atual: ${trainData.response.SituacaoComboio}`); //Here we send the response outside of the interaction, for reasons that we explained above.
         }
         previousStatus = trainData.response.SituacaoComboio;
