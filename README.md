@@ -26,6 +26,7 @@ CPTrainBot uses Discord Slash Commands. Here's a list of available commands:
 
 - `/localizacaocomboio` - displays the current location of a train. Requires the train number.
 - `/horarios` - displays the train schedule for a given station. Requires the station name and the time period in hours. Please note that due to a current limitation, you need to select the station from the presented list.
+- `/alerta` - sends a private message to the user alerting when their train is about to arrive at their station. This command can also notify the user of any changes in the train’s status. Requires name of the station and the ID of the desired train.
 - `/comboio` - displays an image of a train.
 
 ## License

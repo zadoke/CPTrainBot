@@ -1,5 +1,6 @@
 // Import necessary modules from discord.js
 const { SlashCommandBuilder, EmbedBuilder} = require('discord.js');
+const fetchTrainDetails = require('../utils/fetchTrainDetails');
 // Export an object containing the data and execute method for the slash command
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,24 +14,12 @@ module.exports = {
 
 	async execute(interaction) {
 		const trainNumber = interaction.options.getInteger('numerocomboio');
-		const currentDate = new Date().toISOString().substring(0, 10);
 
-		// Fetch train data from API using train number and current date
-		// horarios-ncombio is not a typo, this is the actual endpoint url!
-		const response = await fetch(`https://servicos.infraestruturasdeportugal.pt/negocios-e-servicos/horarios-ncombio/${trainNumber}/${currentDate}`, {
-		method: 'GET',
-		headers: {
-			'Accept': 'application/json',
-		}
-		});
+		const trainData = await fetchTrainDetails(trainNumber);
 
-		const trainData = await response.json();
-
-		
 		// Check if train data is valid
-		if (trainData.response.DataHoraDestino === null) {
-			// If train data is invalid, reply with an error message
-			return interaction.reply('O comboio não foi encontrado.');
+		if (trainData.trainNotFound) {
+			return interaction.reply(trainData.message);
 		}
 
 		// Get the current location of the train

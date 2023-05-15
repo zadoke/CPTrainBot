@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,windows
 
 config.json
+docs
 ### Node ###
 # Logs
 logs
