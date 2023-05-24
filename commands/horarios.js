@@ -2,6 +2,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const fetchStationNames = require('../api/fetchStationNames');
 const fetchSchedule = require('../api/fetchSchedule');
+const getStatusColor = require('../utils/getStatusColor')
 require("dotenv").config();
 
 // Export an object containing the data and execute method for the slash command
@@ -75,16 +76,8 @@ module.exports = {
             .setStyle(ButtonStyle.Primary),
         );
 
-        function getStatusColor(info) {
-          switch (true) {
-              case info.includes('Atraso previsto de'):
-                  return '🟡';
-              case info === 'SUPRIMIDO':
-                  return '🔴';
-              default:
-                  return '🟢';
-          }
-        } 
+
+        
 
         function createScheduleEmbed(trains, scheduleIndex) {
           // This function takes an array of trains, a schedule index.
