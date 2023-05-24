@@ -1,6 +1,6 @@
 // Import necessary modules
 const { SlashCommandBuilder } = require('discord.js');
-const getStationNames = require('../utils/getStationNames');
+const fetchStationNames = require('../api/fetchStationNames');
 const fetchTrainDetails = require('../utils/fetchTrainDetails');
 const getUpdatedArrivalTime = require('../utils/getUpdatedArrivalTime');
 const computeTravelTime = require('../utils/computeTravelTime');
@@ -29,7 +29,7 @@ module.exports = {
     ),
 
     async autocomplete(interaction) {
-      await getStationNames(interaction);
+      await fetchStationNames(interaction);
     },
 
     async execute(interaction, client){
