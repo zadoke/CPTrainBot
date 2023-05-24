@@ -2,7 +2,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const fetchStationNames = require('../api/fetchStationNames');
 const fetchSchedule = require('../api/fetchSchedule');
-const getStatusColor = require('../utils/getStatusColor')
+const getStatusColor = require('../utils/getStatusColor');
 require("dotenv").config();
 
 // Export an object containing the data and execute method for the slash command
@@ -112,7 +112,7 @@ module.exports = {
               .setFooter({ text: `Poderão existir falhas entre os horários apresentados e a realidade.\nInfraestruturas de Portugal, S.A.`, iconURL: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Logo_Infraestruturas_de_Portugal_2.svg/512px-Logo_Infraestruturas_de_Portugal_2.svg.png' }); //Icon is public domain
       
           // Loop through the trains array
-          trains.slice(scheduleIndex, scheduleIndex + 25).forEach(departure => {
+          trains.slice(scheduleIndex, scheduleIndex + 10).forEach(departure => {
             tableScheduleEmbed.addFields(
                 { name: ` `, value: `**${departure.time}** | 🚅 **${departure.trainNumber}** (${departure.destinationStationName}) | ${getStatusColor(departure.info)} ${departure.info}` },
             );
@@ -126,7 +126,7 @@ module.exports = {
         // Create a message component collector to collect user interactions with buttons
         const scheduleCollector = interaction.channel.createMessageComponentCollector({
           componentType: ComponentType.Button,
-          time: 15000 // Set the time limit to 15 seconds
+          time: 30000 // Set the time limit to 30 seconds
         });
 
         // Listen for button clicks and handle them accordingly
@@ -146,17 +146,17 @@ module.exports = {
                 case 'tableView':
                   scheduleIndex = 0;
                   // Update the message with the table view embed and remove the buttons
-                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex,scheduleData)], components: trains.length > 25 ? [nextTableButton] : []});
+                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex,scheduleData)], components: trains.length > 10 ? [nextTableButton] : []});
                   break;
                 case 'nextTableView':
-                  scheduleIndex += 25;
+                  scheduleIndex += 10;
                   // Update the message with the table view embed and the buttons
-                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex, scheduleData)], components: [previousTableButton, ...(scheduleIndex + 25 < trains.length ? [nextTableButton] : [])]});
+                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex, scheduleData)], components: [previousTableButton, ...(scheduleIndex + 10 < trains.length ? [nextTableButton] : [])]});
                   break;
                 case 'previousTableView':
-                  scheduleIndex -= 25;
+                  scheduleIndex -= 10;
                   // Update the message with the table view embed and the buttons
-                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex, scheduleData)], components: [...(scheduleIndex > 0 ? [previousTableButton] : []), ...(scheduleIndex + 25 < trains.length ? [nextTableButton] : [])]});
+                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex, scheduleData)], components: [...(scheduleIndex > 0 ? [previousTableButton] : []), ...(scheduleIndex + 10 < trains.length ? [nextTableButton] : [])]});
                   break;
               };
         });
