@@ -15,12 +15,14 @@ To use CPTrainBot, you need to follow these steps:
 1. Clone the repository.
 2. Rename the `config_example.json` file to `config.json`.
 3. Fill in the following fields in the `config.json` file with your Discord bot token and the Client ID.
-4. Install the required packages with the following command: `npm install`.
-5. Run the following command to deploy the slash commands: `node deploy-commands.js`
+4. Fill the .env file with your backend URL.
+5. Install the required packages with the following command: `npm install`.
+6. Run the following command to deploy the slash commands: `node deploy-commands.js`
+7. Build and run the [backend](https://github.com/zadoke/CPTrainBot-backend#installation).
 
 ## Usage
 
-To start CPTrainBot, run the following command: `node .`.
+To start CPTrainBot, make sure that the backend is running. Then run the following command: `node .`.
 
 CPTrainBot uses Discord Slash Commands. Here's a list of available commands:
 
