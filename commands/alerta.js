@@ -1,7 +1,7 @@
 // Import necessary modules
 const { SlashCommandBuilder } = require('discord.js');
 const fetchStationNames = require('../api/fetchStationNames');
-const fetchTrainDetails = require('../utils/fetchTrainDetails');
+const fetchTrain = require('../api/fetchTrain');
 const getUpdatedArrivalTime = require('../utils/getUpdatedArrivalTime');
 const computeTravelTime = require('../utils/computeTravelTime');
 const dayjs = require('dayjs');
@@ -39,46 +39,51 @@ module.exports = {
       const stationId = parseInt(interaction.options.getString('nomeestacao'));
       const trainNumber = interaction.options.getInteger('numerocomboio');
 
-      const trainData = await fetchTrainDetails(trainNumber);
-      if (trainData.trainNotFound) {
-        return interaction.reply(trainData.message);
+      const trainData = await fetchTrain(trainNumber);
+
+      // Check if train data is valid
+      if (trainData.error) {
+        return interaction.reply(trainData.details);
       }
 
-      const stationIndex = trainData.response.NodesPassagemComboio.findIndex(station => station.NodeID === stationId);
-      let userStation = trainData.response.NodesPassagemComboio[stationIndex];
-      let previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
+      const stationIndex = trainData.stops.findIndex(stop => stop.stationId === stationId);
+
+      let userStation = trainData.stops[stationIndex];
+      let previousStation = trainData.stops[stationIndex - 1];
       // Store the current train status to compare with future requests and inform the user if it changes.
-      let previousStatus = trainData.response.SituacaoComboio;
+      let previousStatus = trainData.status;
 
       if (!userStation){
         return interaction.reply('O comboio não passa pela a estação que introduziste.');
       }
-      if (userStation.ComboioPassou) {
+
+      if (userStation.trainPassed) {
         return interaction.reply('O comboio já passou pela a estação!')
       }
 
-      interaction.reply(`${interaction.user.toString()}, o alerta está definido. Irei avisar-te quando o comboio ${trainNumber} chegar a ${userStation.NomeEstacao}.`);
+      interaction.reply(`${interaction.user.toString()}, o alerta está definido. Irei avisar-te quando o comboio ${trainNumber} chegar a ${userStation.stationName}.`);
 
       // Set an interval to check the train status every 15 seconds
+      // TODO: Implement this feature on the backend
       const interval = setInterval(async () => {
-        const trainData = await fetchTrainDetails(trainNumber);
-        previousStation = trainData.response.NodesPassagemComboio[stationIndex - 1];
+        const trainData = await fetchTrain(trainNumber);
+        previousStation = trainData.stops[stationIndex - 1];
 
-        if (trainData.response.SituacaoComboio && previousStatus !== trainData.response.SituacaoComboio) {
-          user.send(`${interaction.user.toString()}, o estado do teu comboio mudou. Estado atual: ${trainData.response.SituacaoComboio}`); //Here we send the response outside of the interaction, for reasons that we explained above.
+        if (trainData.status && previousStatus !== trainData.status) {
+          user.send(`${interaction.user.toString()}, o estado do teu comboio mudou. Estado atual: ${trainData.status}`); //Here we send the response outside of the interaction, for reasons that we explained above.
         }
-        previousStatus = trainData.response.SituacaoComboio;
+        previousStatus = trainData.status;
         
-        if (previousStation && previousStation.ComboioPassou) {
+        if (previousStation && previousStation.trainPassed) {
           // Check if there is an updated arrival time in the Observacoes field
-          userStation = trainData.response.NodesPassagemComboio[stationIndex];
+          userStation = trainData.stops[stationIndex];
 
           const userStationArrivalTime = getUpdatedArrivalTime(userStation);
           const previousStationArrivalTime = getUpdatedArrivalTime(previousStation);
           const timeDifference = computeTravelTime(userStationArrivalTime, previousStationArrivalTime);
           
           setTimeout(() => {
-            user.send(`${interaction.user.toString()}, o teu comboio ${trainNumber} vai chegar a ${userStation.NomeEstacao} daqui a 1 minuto.`);
+            user.send(`${interaction.user.toString()}, o teu comboio ${trainNumber} vai chegar a ${userStation.stationName} daqui a 1 minuto.`);
             return;
           }, timeDifference - 60000); // Subtract 1 minute (60000 miliseconds) from the time difference
           clearInterval(interval);

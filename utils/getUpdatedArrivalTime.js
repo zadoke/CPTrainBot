@@ -7,11 +7,11 @@ dayjs.extend(timezone);
 
 function getUpdatedArrivalTime(station) {
     let arrivalTime;
-    if (station.Observacoes && station.Observacoes.includes('Hora Prevista')) {
-      const updatedArrivalTime = station.Observacoes.split(':').slice(1).join(':');
+    if (station.delayInfo && station.delayInfo.includes('Hora Prevista')) {
+      const updatedArrivalTime = station.delayInfo.split(':').slice(1).join(':');
       arrivalTime = dayjs.tz(`${dayjs().format('YYYY-MM-DD')}T${updatedArrivalTime}:00.000Z`, 'Europe/Lisbon');
     } else {
-      arrivalTime = dayjs.tz(`${dayjs().format('YYYY-MM-DD')}T${station.HoraProgramada}:00.000Z`, 'Europe/Lisbon');
+      arrivalTime = dayjs.tz(`${dayjs().format('YYYY-MM-DD')}T${station.scheduledTime}:00.000Z`, 'Europe/Lisbon');
     }
     return arrivalTime;
 }
