@@ -1,6 +1,8 @@
 # CPTrainBot
 
 CPTrainBot is a Discord bot that retrieves train schedules and information from Infrastruturas de Portugal and displays them on Discord.
+The backend for this bot is located in another repository, which you can access [here](https://github.com/zadoke/CPTrainBot-backend).
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -9,22 +11,21 @@ CPTrainBot is a Discord bot that retrieves train schedules and information from 
 - [Note](#note)
 
 ## Installation
+To use CPTrainBot, please follow these steps:
 
-To use CPTrainBot, you need to follow these steps:
-
-1. Clone the repository.
-2. Rename the `config_example.json` file to `config.json`.
-3. Fill in the following fields in the `config.json` file with your Discord bot token and the Client ID.
-4. Fill the .env file with your backend URL (BACKEND_URL).
-5. Install the required packages with the following command: `npm install`.
-6. Run the following command to deploy the slash commands: `node deploy-commands.js`
-7. Build and run the [backend](https://github.com/zadoke/CPTrainBot-backend#installation).
+1. Clone both the CPTrainBot repository and the [backend repository](https://github.com/zadoke/CPTrainBot-backend) to your local machine.
+2. In the CPTrainBot repository, rename the `config_example.json` file to `config.json`.
+3. Open the `config.json` file and enter your Discord bot token and Client ID in the appropriate fields.
+4. Open the `.env` file and enter your backend URL in the `BACKEND_URL` field.
+5. Install the required packages by running the command `npm install`.
+6. Deploy the slash commands by running the command `node deploy-commands.js`.
+7. Follow the [installation instructions](https://github.com/zadoke/CPTrainBot-backend#installation) to build and run the backend.
 
 ## Usage
 
-To start CPTrainBot, make sure that the backend is running. Then run the following command: `node .`.
+To start using CPTrainBot, first ensure that the backend is running. Then, navigate to the CPTrainBot repository on your local machine and run the command `node .` to start the bot.
 
-CPTrainBot uses Discord Slash Commands. Here's a list of available commands:
+CPTrainBot uses Slash Commands. Here's a list of available commands:
 
 - `/imagem` - displays an image of a train.
 - `/horarios` - displays the train schedule for a given station. Requires the station name and the time period in hours. Please note that due to a current limitation, you need to select the station from the presented list.
