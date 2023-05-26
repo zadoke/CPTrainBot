@@ -2,8 +2,8 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const fetchStationNames = require('../api/fetchStationNames');
 const fetchSchedule = require('../api/fetchSchedule');
-const getStatusColor = require('../utils/getStatusColor');
-require("dotenv").config();
+const createTableScheduleEmbed = require('../utils/createTableScheduleEmbed');
+const createScheduleEmbed = require('../utils/createScheduleEmbed');
 
 // Export an object containing the data and execute method for the slash command
 module.exports = {
@@ -24,7 +24,6 @@ module.exports = {
     async execute(interaction) {
         // Get the station name and hours offset from the options
         const stationId = parseInt(interaction.options.getString('nomeestacao'));
-
         const scheduleData = await fetchSchedule(interaction, stationId);
 
         let trains
@@ -75,51 +74,6 @@ module.exports = {
             .setLabel('⏩ Próxima tabela')
             .setStyle(ButtonStyle.Primary),
         );
-
-
-        
-
-        function createScheduleEmbed(trains, scheduleIndex) {
-          // This function takes an array of trains, a schedule index.
-          // It uses these arguments to create an embed object that displays information about a specific departure
-          
-          // Get the current departure from the trains array using the schedule index
-          const currentDeparture = trains[scheduleIndex];
-          
-          // Create a new embed object and set its properties
-          const scheduleEmbed = new EmbedBuilder()
-              .setColor(0x0099FF)
-              .setTitle(`🚅 ${currentDeparture.trainNumber} (${currentDeparture.destinationStationName})`)
-              // Add fields to the embed with the currentDeparture time, operator and observations
-              .addFields(
-                  { name: '🕑 Horas', value: `${currentDeparture.time}` },
-                  { name: '👮‍♂️ Operador', value: `${currentDeparture.operator}` },
-                  { name: `${getStatusColor(currentDeparture.info)} Observações`, value: `${currentDeparture.info}` }
-              );
-          
-              // Return the embed object
-          return scheduleEmbed;
-        }
-
-        function createTableScheduleEmbed(trains, scheduleIndex, scheduleData) {
-          // This function takes an array of trains and scheduleData
-          // It uses these arguments to create an embed object that displays a table view of the trains
-          
-          // Create a new embed object and set its properties
-          const tableScheduleEmbed = new EmbedBuilder()
-              .setColor('#0099ff')
-              .setTitle(`Partidas na estação ${scheduleData.stationName}`)
-              .setFooter({ text: `Poderão existir falhas entre os horários apresentados e a realidade.\nInfraestruturas de Portugal, S.A.`, iconURL: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Logo_Infraestruturas_de_Portugal_2.svg/512px-Logo_Infraestruturas_de_Portugal_2.svg.png' }); //Icon is public domain
-      
-          // Loop through the trains array
-          trains.slice(scheduleIndex, scheduleIndex + 10).forEach(departure => {
-            tableScheduleEmbed.addFields(
-                { name: ` `, value: `**${departure.time}** | 🚅 **${departure.trainNumber}** (${departure.destinationStationName}) | ${getStatusColor(departure.info)} ${departure.info}` },
-            );
-          });
-          // Return the embed object
-          return tableScheduleEmbed;
-        }
 
         await interaction.reply({ embeds: [createScheduleEmbed(trains,scheduleIndex)], components: [nextTrainButton, tableViewButton] });
 
