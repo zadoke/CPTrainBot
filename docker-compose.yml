@@ -10,7 +10,8 @@ services:
     build: https://github.com/zadoke/CPTrainBot.git
     environment:
       - BACKEND_URL=http://backend:3000
-      - CLIENT_ID=<insert your client id here>
-      - TOKEN=<insert your token here>
+      - CLIENT_ID=${CLIENT_ID}
+      - TOKEN=${TOKEN}
     depends_on:
       - backend
+    restart: unless-stopped
