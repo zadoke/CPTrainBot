@@ -1,7 +1,9 @@
 version: '3.8'
 services:
   backend:
-    build: https://github.com/zadoke/CPTrainBot-backend.git
+    build:
+      context: https://github.com/zadoke/CPTrainBot-backend.git
+      branch: main
     environment:
       - SERVER_PORT=3000
     ports:
