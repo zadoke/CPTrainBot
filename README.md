@@ -1,6 +1,8 @@
 # CPTrainBot
 
 CPTrainBot is a Discord bot that retrieves train schedules and information from Infrastruturas de Portugal and displays them on Discord.
+The backend for this bot is located in another repository, which you can access [here](https://github.com/zadoke/CPTrainBot-backend).
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -9,25 +11,24 @@ CPTrainBot is a Discord bot that retrieves train schedules and information from 
 - [Note](#note)
 
 ## Installation
+To use CPTrainBot, please follow these steps:
 
-To use CPTrainBot, you need to follow these steps:
-
-1. Clone the repository.
-2. Rename the `config_example.json` file to `config.json`.
-3. Fill in the following fields in the `config.json` file with your Discord bot token and the Client ID.
-4. Install the required packages with the following command: `npm install`.
-5. Run the following command to deploy the slash commands: `node deploy-commands.js`
+1. Clone both the CPTrainBot repository and the [backend repository](https://github.com/zadoke/CPTrainBot-backend) to your local machine.
+2. In the CPTrainBot repository, create a new file named `.env` and enter your Discord bot token, Client ID, and backend URL in the `TOKEN`, `CLIENT_ID`, and `BACKEND_URL` fields, respectively. Alternatively, you can pass these values as environment variables in the terminal when starting the bot.
+3. Install the required packages by running the command `npm install`.
+4. Deploy the slash commands by running the command `node deploy-commands.js`.
+5. Follow the [installation instructions](https://github.com/zadoke/CPTrainBot-backend#installation) to build and run the backend.
 
 ## Usage
 
-To start CPTrainBot, run the following command: `node .`.
+To start using CPTrainBot, first ensure that the backend is running. Then, navigate to the CPTrainBot repository on your local machine and run the command `node .` to start the bot.
 
-CPTrainBot uses Discord Slash Commands. Here's a list of available commands:
+CPTrainBot uses Slash Commands. Here's a list of available commands:
 
-- `/localizacaocomboio` - displays the current location of a train. Requires the train number.
+- `/imagem` - displays an image of a train.
 - `/horarios` - displays the train schedule for a given station. Requires the station name and the time period in hours. Please note that due to a current limitation, you need to select the station from the presented list.
 - `/alerta` - sends a private message to the user alerting when their train is about to arrive at their station. This command can also notify the user of any changes in the train’s status. Requires name of the station and the ID of the desired train.
-- `/comboio` - displays an image of a train.
+- `/comboio` - displays the current location of a train. Requires the train number.
 
 ## License
 
