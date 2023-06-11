@@ -14,7 +14,7 @@ function createTableScheduleEmbed(trains, scheduleIndex, scheduleData) {
     // Loop through the trains array
     trains.slice(scheduleIndex, scheduleIndex + 10).forEach(departure => {
       tableScheduleEmbed.addFields(
-          { name: ` `, value: `**${departure.time}** | 🚅 **${departure.trainNumber}** (${departure.destinationStationName}) | ${getStatusColor(departure.info)} ${departure.info}` },
+          { name: ` `, value: `**${departure.time}** | 🚅 **(${departure.carriages})** **${departure.trainNumber}** (${departure.destinationStationName}) | ${getStatusColor(departure.info)} ${departure.info}` },
       );
     });
     // Return the embed object

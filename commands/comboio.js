@@ -21,17 +21,11 @@ module.exports = {
 			return interaction.reply(trainData.details);
 		}
 
-		// Get the current location of the train
-		// TODO: Move implementation to backend
-		const nextStation = trainData.stops
-		.filter((node) => !node.trainPassed)
-		.sort((a, b) => b.trainPassed - a.trainPassed)[0];
-
 		// Create an embed to display the train data
 		const estadoComboioEmbed = new EmbedBuilder()
 		.setColor(0x0099FF)
 		.setTitle(`🚅 Comboio ${trainNumber} ${trainData.serviceType} - Localização`)
-		.setFooter({ text: `Poderão existir falhas entre os horários apresentados e a realidade.\nInfraestruturas de Portugal, S.A.`, iconURL: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Logo_Infraestruturas_de_Portugal_2.svg/512px-Logo_Infraestruturas_de_Portugal_2.svg.png' });
+		.setFooter({ text: `Poderão existir falhas entre os horários apresentados e a realidade.\nInfraestruturas de Portugal, S.A.\nSegue o teu comboio e recebe atualizações usando o comando /alerta!`, iconURL: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Logo_Infraestruturas_de_Portugal_2.svg/512px-Logo_Infraestruturas_de_Portugal_2.svg.png' });
 		
 		// Check the status of the train and add relevant fields to the embed
 		switch (trainData.status) {
@@ -40,7 +34,7 @@ module.exports = {
 					.addFields(
 						{ name: '⚪ Observações', value: trainData.status, },
 						{ name: '🏔 Estação de partida', value: trainData.origin, inline: true },
-						{ name: '🕑 Hora de partida', value: nextStation.scheduledTime, inline: true }
+						{ name: '🕑 Hora de partida', value: trainData.departureTime, inline: true }
 					);
 			  await interaction.reply({ embeds: [estadoComboioEmbed] });
 			  break;
@@ -58,19 +52,30 @@ module.exports = {
 					.addFields(
 						{ name: '🔴 Observações', value: trainData.status,},
 						{ name: '🏔 Estação de partida', value: trainData.origin, inline: true },
-						{ name: '🕑 Hora de partida', value: nextStation.scheduledTime, inline: true }
+						{ name: '🕑 Hora de partida', value: trainData.departureTime, inline: true }
 					);
 			  await interaction.reply({ embeds: [estadoComboioEmbed] });
 			  break;
 			default:	
-			  estadoComboioEmbed.setDescription('O Comboio irá passar/está por:')
-					.addFields(
-						{ name: '🏔 Estação', value: nextStation.stationName },
-						{ name: '🕑 Hora Programada', value: nextStation.scheduledTime, inline: true },
-						{ name: '🟢 Observações', value: trainData.status, inline: true }
+				estadoComboioEmbed.setDescription(`O Comboio está **${trainData.status}**:`)
+				const trainCurrentLocation = trainData.stops.find(stop => !stop.trainPassed);
+				trainData.stops.forEach((stop) => {
+					let stopsList = `**${stop.scheduledTime}** | ${stop.stationName}`;
+					if (stop.delayInfo !== "Sem observações") {
+						stopsList = `~~${stop.scheduledTime}~~ **${stop.delayInfo}** | ${stop.stationName}`;
+					}
+					if (stop === trainCurrentLocation) {
+						stopsList += ' 🚆';
+					}
+					if (stop.trainPassed) {
+						stopsList = `~~${stop.stationName}~~ ✅`;
+					}
+					estadoComboioEmbed.addFields(
+						{ name: ' ', value: `**•** ${stopsList}` },
 					);
-			  await interaction.reply({ embeds: [estadoComboioEmbed]});	
-			  break;	
+				});
+				await interaction.reply({ embeds: [estadoComboioEmbed]});	
+				break;	
 		}
 	}	
 }
