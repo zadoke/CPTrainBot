@@ -10,7 +10,7 @@ spec:
     template:
         metadata:
             labels:
-                service: discord-bot
+                service: cptrainbot-discord-bot
         spec:
             containers:
                 - env:
