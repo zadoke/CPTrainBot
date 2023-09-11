@@ -38,45 +38,49 @@ module.exports = {
         let scheduleIndex = 0;
 
         // Define constants for the buttons that will be used in the message components
+
+        // Generate a unique ID for this command execution
+        const commandId = Math.random().toString(36).substring(2, 8);
+
         // Create an action row builder object and add a button component with a custom id, label and style for the next, previous train and table view button
         const nextTrainButton = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setCustomId('nextTrain')
+            .setCustomId(`${commandId}-nextTrain`)
             .setLabel('⏩ Próximo comboio')
             .setStyle(ButtonStyle.Primary),
         );
         const previousTrainButton = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setCustomId('previousTrain')
+            .setCustomId(`${commandId}-previousTrain`)
             .setLabel('⏪ Comboio anterior')
             .setStyle(ButtonStyle.Primary),
         );
         const tableViewButton = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setCustomId('tableView')
+            .setCustomId(`${commandId}-tableView`)
             .setLabel('📋 Vista em tabela')
             .setStyle(ButtonStyle.Danger),
         );
         const previousTableButton = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setCustomId('previousTableView')
+            .setCustomId(`${commandId}-previousTableView`)
             .setLabel('⏪ Tabela anterior')
             .setStyle(ButtonStyle.Primary),
         );
         const nextTableButton = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setCustomId('nextTableView')
+            .setCustomId(`${commandId}-nextTableView`)
             .setLabel('⏩ Próxima tabela')
             .setStyle(ButtonStyle.Primary),
         );
-
+        console.log(`${commandId}-nextTrain`)
         await interaction.reply({ embeds: [createScheduleEmbed(trains,scheduleIndex)], components: [nextTrainButton, tableViewButton] });
-
+        
         // Create a message component collector to collect user interactions with buttons
         const scheduleCollector = interaction.channel.createMessageComponentCollector({
           componentType: ComponentType.Button,
@@ -84,33 +88,35 @@ module.exports = {
         });
 
         // Listen for button clicks and handle them accordingly
-        scheduleCollector.on('collect', async i => {
+        scheduleCollector.on('collect', async button => {
+            if (!button.customId.startsWith(commandId)) return;
+            await button.deferUpdate();
             // Use a switch statement to handle button clicks based on the custom id of the button that was clicked
-            switch (i.customId) {
-                case 'nextTrain':
+            switch (button.customId) {
+                case `${commandId}-nextTrain`:
                   // Increment the schedule index and update the message with the next train schedule embed and buttons
                   scheduleIndex++;
-                  await i.update({ embeds: [createScheduleEmbed(trains, scheduleIndex)], components: [previousTrainButton,nextTrainButton, tableViewButton]});
+                  await button.editReply({ embeds: [createScheduleEmbed(trains, scheduleIndex)], components: [previousTrainButton,nextTrainButton, tableViewButton]});
                   break;
-                case 'previousTrain':
+                case `${commandId}-previousTrain`:
                   // Decrement the schedule index and update the message with the previous train schedule embed and buttons
                   scheduleIndex--;
-                  await i.update({ embeds: [createScheduleEmbed(trains, scheduleIndex)], components: scheduleIndex == 0 ? [nextTrainButton, tableViewButton] : [previousTrainButton,nextTrainButton, tableViewButton]});
+                  await button.editReply({ embeds: [createScheduleEmbed(trains, scheduleIndex)], components: scheduleIndex == 0 ? [nextTrainButton, tableViewButton] : [previousTrainButton,nextTrainButton, tableViewButton]});
                   break;
-                case 'tableView':
+                case `${commandId}-tableView`:
                   scheduleIndex = 0;
                   // Update the message with the table view embed and remove the buttons
-                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex,scheduleData)], components: trains.length > 10 ? [nextTableButton] : []});
+                  await button.editReply({ embeds: [createTableScheduleEmbed(trains, scheduleIndex,scheduleData)], components: trains.length > 10 ? [nextTableButton] : []});
                   break;
-                case 'nextTableView':
+                case `${commandId}-nextTableView`:
                   scheduleIndex += 10;
                   // Update the message with the table view embed and the buttons
-                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex, scheduleData)], components: [previousTableButton, ...(scheduleIndex + 10 < trains.length ? [nextTableButton] : [])]});
+                  await button.editReply({ embeds: [createTableScheduleEmbed(trains, scheduleIndex, scheduleData)], components: [previousTableButton, ...(scheduleIndex + 10 < trains.length ? [nextTableButton] : [])]});
                   break;
-                case 'previousTableView':
+                case `${commandId}-previousTableView`:
                   scheduleIndex -= 10;
                   // Update the message with the table view embed and the buttons
-                  await i.update({ embeds: [createTableScheduleEmbed(trains, scheduleIndex, scheduleData)], components: [...(scheduleIndex > 0 ? [previousTableButton] : []), ...(scheduleIndex + 10 < trains.length ? [nextTableButton] : [])]});
+                  await button.editReply({ embeds: [createTableScheduleEmbed(trains, scheduleIndex, scheduleData)], components: [...(scheduleIndex > 0 ? [previousTableButton] : []), ...(scheduleIndex + 10 < trains.length ? [nextTableButton] : [])]});
                   break;
               };
         });
