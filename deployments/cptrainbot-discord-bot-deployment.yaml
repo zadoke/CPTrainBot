@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: cptrainbot-discord-bot
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            service: cptrainbot-discord-bot
+    template:
+        metadata:
+            labels:
+                service: discord-bot
+        spec:
+            containers:
+                - env:
+                      - name: BACKEND_URL
+                        value: http://cptrainbot-backend:3000
+                      - name: CLIENT_ID
+                        valueFrom:
+                            secretKeyRef:
+                                name: cptrainbot-discord-credentials
+                                key: client-id
+                      - name: TOKEN
+                        valueFrom:
+                            secretKeyRef:
+                                name: cptrainbot-discord-credentials
+                                key: token
+                  image: zadoke/cptrainbot:discord_bot
+                  name: cptrainbot-discord-bot
+                  resources: {}
+            restartPolicy: Always
