@@ -1,18 +1,24 @@
-name: Docker Image build
+name: Docker Image CI
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    push:
+        branches: ['master']
+    pull_request:
+        branches: ['master']
 
 jobs:
+    build:
+        runs-on: ubuntu-latest
 
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag cptrainbot:discord_bot
+        steps:
+            - uses: actions/checkout@v3
+            - name: docker login
+              env:
+                  DOCKER_USER: ${{secrets.DOCKER_USER}}
+                  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+              run: |
+                  docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+            - name: Build the Docker image
+              run: docker build . --file Dockerfile --tag cptrainbot:discord_bot
+            - name: Docker Push
+              run: docker push zadoke/cptrainbot
