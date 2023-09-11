@@ -11,9 +11,13 @@ The backend for this bot is located in another repository, which you can access 
 - [Note](#note)
 
 ## Installation
-You have two options for deploying CPTrainBot: a normal installation or a Docker installation.
+You have multiple options for deploying CPTrainBot:
 
-**Docker**
+- **Docker Compose**: Deploy CPTrainBot and its backend using Docker Compose.
+- **Normal Installation**: Deploy CPTrainBot using the traditional installation method.
+- **Kubernetes**: Deploy CPTrainBot on a Kubernetes cluster (refer to the [Kubernetes Deployment README](deployments/README.md) for detailed instructions).
+
+**Docker Compose**
 
 1. Install Docker and Docker Compose on your system.
 2. Clone the CPTrainBot repository or download the Docker Compose file directly.
@@ -26,8 +30,7 @@ TOKEN=<insert your token here>
 
 Make sure to replace `<insert your client id here>` and `<insert your token here>` with your own values.
 
-
-4. Run the command `docker-compose up -d` to start the services in detached mode, on directory containing the Docker Compose file and the .env file.
+4. Run the command `docker-compose up -d` to start the services in detached mode, on the directory containing the Docker Compose file and the .env file.
 
 **Normal Installation**
 
