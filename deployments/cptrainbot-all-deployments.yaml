@@ -28,6 +28,7 @@ spec:
                                 name: cptrainbot-discord-credentials
                                 key: token
                   image: zadoke/cptrainbot:discord_bot
+                  imagePullPolicy: Always
                   name: cptrainbot-discord-bot
                   resources: {}
             restartPolicy: Always
@@ -52,6 +53,7 @@ spec:
                       - name: SERVER_PORT
                         value: '3000'
                   image: zadoke/cptrainbot:backend
+                  imagePullPolicy: Always
                   name: cptrainbot-backend
                   ports:
                       - containerPort: 3000

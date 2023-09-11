@@ -27,6 +27,7 @@ spec:
                                 name: cptrainbot-discord-credentials
                                 key: token
                   image: zadoke/cptrainbot:discord_bot
+                  imagePullPolicy: Always
                   name: cptrainbot-discord-bot
                   resources: {}
             restartPolicy: Always
