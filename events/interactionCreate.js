@@ -3,6 +3,7 @@ const { Events } = require('discord.js');
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
+		if (interaction.isButton()) return;
 		if (interaction.isAutocomplete()) {
 			const command = interaction.client.commands.get(interaction.commandName);
 			if (!command) {
@@ -30,8 +31,4 @@ module.exports = {
 		}
 	
 	},
-
-	
-
-	
 };
