@@ -2,34 +2,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: cptrainbot-discord-bot
+    name: cptrainbot
 spec:
     replicas: 1
     selector:
         matchLabels:
-            service: cptrainbot-discord-bot
+            service: cptrainbot
     template:
         metadata:
             labels:
-                service: cptrainbot-discord-bot
+                service: cptrainbot
         spec:
             containers:
                 - env:
                       - name: BACKEND_URL
-                        value: http://cptrainbot-backend:3000
+                        value: http://chrona:3000
                       - name: CLIENT_ID
                         valueFrom:
                             secretKeyRef:
-                                name: cptrainbot-discord-credentials
+                                name: cptrainbot-credentials
                                 key: client-id
                       - name: TOKEN
                         valueFrom:
                             secretKeyRef:
-                                name: cptrainbot-discord-credentials
+                                name: cptrainbot-credentials
                                 key: token
-                  image: zadoke/cptrainbot:discord_bot
+                  image: zadoke/cptrainbot:latest
                   imagePullPolicy: Always
-                  name: cptrainbot-discord-bot
+                  name: cptrainbot
                   resources: {}
             restartPolicy: Always
 ---
@@ -37,24 +37,24 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: cptrainbot-backend
+    name: chrona
 spec:
     replicas: 2
     selector:
         matchLabels:
-            service: cptrainbot-backend
+            service: chrona
     template:
         metadata:
             labels:
-                service: cptrainbot-backend
+                service: chrona
         spec:
             containers:
                 - env:
                       - name: SERVER_PORT
                         value: '3000'
-                  image: zadoke/cptrainbot:backend
+                  image: zadoke/chrona:latest
                   imagePullPolicy: Always
-                  name: cptrainbot-backend
+                  name: chrona
                   ports:
                       - containerPort: 3000
                   resources: {}
@@ -64,11 +64,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    name: cptrainbot-backend
+    name: chrona
 spec:
     ports:
         - name: '3000'
           port: 3000
           targetPort: 3000
     selector:
-        service: cptrainbot-backend
+        service: chrona

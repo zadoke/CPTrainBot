@@ -26,7 +26,7 @@ spec:
                             secretKeyRef:
                                 name: cptrainbot-discord-credentials
                                 key: token
-                  image: zadoke/cptrainbot:discord_bot
+                  image: zadoke/cptrainbot:latest
                   imagePullPolicy: Always
                   name: cptrainbot-discord-bot
                   resources: {}
