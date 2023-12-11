@@ -78,7 +78,7 @@ module.exports = {
             .setLabel('⏩ Próxima tabela')
             .setStyle(ButtonStyle.Primary),
         );
-        console.log(`${commandId}-nextTrain`)
+
         await interaction.reply({ embeds: [createScheduleEmbed(trains,scheduleIndex)], components: [nextTrainButton, tableViewButton] });
         
         // Create a message component collector to collect user interactions with buttons
